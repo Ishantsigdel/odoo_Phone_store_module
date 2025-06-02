@@ -1,0 +1,95 @@
+<odoo>
+    <!-- Tree View -->
+    <record id="view_phone_brand_tree" model="ir.ui.view">
+        <field name="name">phone.brand.tree</field>
+        <field name="model">phone.brand</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="imei_number"/>
+                <field name="manufactured_year"/>
+                <field name="mrp"/>
+                
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_phone_brand_form" model="ir.ui.view">
+        <field name="name">phone.brand.form</field>
+        <field name="model">phone.brand</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="imei_number"/>
+                        <field name="manufactured_year"/>
+                        <field name="mrp"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+       <!-- Kanban View -->
+<record id="view_phone_brand_kanban" model="ir.ui.view">
+    <field name="name">phone.brand.kanban</field>
+    <field name="model">phone.brand</field>
+    <field name="arch" type="xml">
+        <kanban>
+            <field name="name"/>
+            <field name="imei_number"/>
+            <field name="manufactured_year"/>
+            <field name="mrp"/>
+            <templates>
+                <t t-name="kanban-box">
+                    <div class="oe_kanban_global_click" style="border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-shadow: none;">
+                        <div class="o_kanban_details">
+                            <strong><t t-esc="record.name.value"/></strong><br/>
+                            IMEI: <t t-esc="record.imei_number.value"/><br/>
+                            Year: <t t-esc="record.manufactured_year.value"/><br/>
+                            MRP: <t t-esc="record.mrp.value"/>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+    </field>
+</record>
+
+
+   
+
+
+    <record id="view_phone_brand_search" model="ir.ui.view">
+        <field name="name">phone.brand.search</field>
+        <field name="model">phone.brand</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="imei_number"/>
+                <field name="manufactured_year"/>
+                <field name="mrp"/>
+
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+    
+
+
+
+<!-- Action -->
+<record id="action_phone_brand" model="ir.actions.act_window">
+<field name="name">Phone Brands</field>
+<field name="res_model">phone.brand</field>
+<field name="view_mode">tree,form,kanban</field>
+</record>
+
+<!-- Menu -->
+<menuitem id="menu_phone_brand" name="Brands" parent="menu_phone_store_root" action="action_phone_brand"/>
+</odoo>

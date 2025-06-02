@@ -1,0 +1,132 @@
+<odoo>
+    <record id="view_phone_store_tree" model="ir.ui.view">
+        <field name="name">phone.store.tree</field>
+        <field name="model">phone.store</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="phone_number"/>
+                <field name="gender"/>
+                <field name="address"/>
+                <field name="brand_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- form_view -->
+    <record id="view_form_phone_store" model="ir.ui.view">
+        <field name="name">phone.store.form</field>
+        <field name="model">phone.store</field>
+        <field name="arch" type="xml">
+            <form string="Phone no store">
+                <sheet>
+                    <div class="o_form_layout" style="display: flex; align-items: flex-start; gap: 20px;">
+
+                        <div style="flex-grow: 1;">
+                            <group>
+                                <group>
+                                    <field name="name"/>
+                                    <field name="phone_number"/>
+                                    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                    <field name="gender"/>
+                                    <field name="address"/>
+                                    <field name="is_customer"/>
+                                    <field name="brand_id"/>
+                                </group>
+                                <group>
+                                    <label for="total_outgoing_cost" string="Total Outgoing Cost" class="o_form_label" style="font-weight: bold !important;"/>
+                                    <field name="total_outgoing_cost" readonly="1" nolabel="1"/>
+                                </group>
+                            </group>
+                        </div>
+
+                        <div>
+                            <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_1920'}" nolabel="1" style="width: 128px; height: 128px; border-radius: 8px; object-fit: cover;"/>
+                        </div>
+                    </div>
+
+                    <!-- Notebook stays unchanged -->
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" widget="html"/>
+                        </page>
+                       <page string="Phone Calls">
+    <field name="call_ids" context="{'default_phone_store_id': active_id}">
+        <tree editable="bottom">
+            <field name="name"/>
+            <field name="call_type"/>
+            <field name="phone_number"/>
+            <field name="call_time"/>
+            <field name="time_spent" attrs="{'invisible': [('call_type', '=', 'incoming')]}"/>
+            <field name="cost_per_minute" attrs="{'invisible': [('call_type', '=', 'incoming')]}"/>
+            <field name="total_cost" attrs="{'invisible': [('call_type', '=', 'incoming')]}" readonly="1"/>
+        </tree>
+    </field>
+</page>
+
+                    </notebook>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <!-- kanban_view -->
+    <record id="view_phone_store_kanban" model="ir.ui.view">
+        <field name="name">phone.store.kanban</field>
+        <field name="model">phone.store</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="phone_number"/>
+                <field name="gender"/>
+                <field name="address"/>
+                <field name="image_1920"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_image">
+                                <field name="image_1920" preview_image="image_128" widget="image" options="{'zoom': true, 'zoom_delay': 1000}"/>
+                            </div>
+                            <div>
+                                <strong>
+                                    <t t-esc="record.name.value"/>
+                                </strong>
+                                <br/>
+                            Phone: <t t-esc="record.phone_number.value"/>
+                            <br/>
+                            Gender: <t t-esc="record.gender.value"/>
+                        <br/>
+                            Address: <t t-esc="record.address.value"/>
+                    </div>
+                </div>
+            </t>
+        </templates>
+    </kanban>
+</field>
+</record>
+
+
+<record id="view_phone_store_search" model="ir.ui.view">
+<field name="name">phone.store.search</field>
+<field name="model">phone.store</field>
+<field name="arch" type="xml">
+    <search>
+        <field name="name"/>
+        <field name="phone_number"/>
+        <field name="address"/>
+        <field name="gender"/>
+        <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+    </search>
+</field>
+</record>
+
+<record id="action_phone_store" model="ir.actions.act_window">
+<field name="name">Phone Store</field>
+<field name="res_model">phone.store</field>
+<field name="view_mode">tree,form,kanban</field>
+</record>
+
+<menuitem id="menu_phone_store_root" name="Phone Store"/>
+<menuitem id="menu_phone_store" name="Name" parent="menu_phone_store_root" action="action_phone_store"/>
+</odoo>
