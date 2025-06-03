@@ -1,0 +1,21 @@
+<odoo>
+  <record id="view_form_phone_call" model="ir.ui.view">
+    <field name="name">phone.call.form</field>
+    <field name="model">phone.call</field>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <group>
+            <field name="store_id"/>
+            <field name="duration_minutes"/>
+            <field name="cost_per_minute"/>
+            <field name="total_cost"/>
+            <field name="is_invoiced"/>
+          </group>
+          <footer>
+          </footer>
+        </sheet>
+      </form>
+    </field>
+  </record>
+</odoo>

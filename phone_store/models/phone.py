@@ -1,10 +1,13 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
+from odoo import Command
 
 class PhoneStore(models.Model):
     _name = 'phone.store'
     _description = 'Phone Store'
 
     name = fields.Char(string='Name', required=True)
+
     phone_number = fields.Char(string='Phone Number', required=True)
     tag_ids = fields.Many2many('phone.tag', string='Tags')
 
@@ -15,14 +18,77 @@ class PhoneStore(models.Model):
         ('other', 'Other')
     ], string='Gender')
     active = fields.Boolean(string='Active', default=True)
-    is_customer = fields.Boolean(string='Customer', default=False)  # Default: Not a customer
+    partner_id= fields.Many2one("res.partner",string="Custoemr")
     brand_id = fields.Many2one('phone.brand', string='Phone Brand')
     description = fields.Text(string="Description")
     image_1920 = fields.Image(string="Image")
 
-    call_ids = fields.One2many('phone.call', 'store_id', string='Phone calls')
+    total_outgoing_cost = fields.Float(string="Total Outgoing Cost", compute="_compute_total_outgoing_cost")
+    is_invoiced = fields.Boolean(string="Invoiced", default=False)
 
-    total_outgoing_cost = fields.Float(string="Total Outgoing Cost", compute="_compute_total_outgoing_cost", store=True)
+    call_ids= fields.One2many("phone.call", "store_id", string="Calls")
+    invoice_count = fields.Integer(string="Invoice Count", compute="_compute_invoice_count")
+
+
+    invoice_count = fields.Integer(string="Invoice Count", compute="_compute_invoice_count")
+
+    # def _compute_total_outgoing_cost(self):
+    #     for record in self:
+    #         record.total_outgoing_cost = sum(
+    #             call.total_cost for call in record.call_ids if call.call_type == 'outgoing'
+    #         )
+
+    
+
+    def action_view_invoice(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Invoices',
+            'res_model': 'account.move',
+            'view_mode': 'tree,form',
+            'domain': [('partner_id', '=', self.partner_id.id), ('move_type', '=', 'out_invoice')],
+            # 'context': "{'create': False}"
+        }
+
+    def _compute_invoice_count(self):
+        for record in self:
+            if record.partner_id:
+                record.invoice_count = self.env['account.move'].search_count([
+                    ('partner_id', '=', record.partner_id.id),
+                    ('move_type', '=', 'out_invoice'),
+                ])
+            else:
+                record.invoice_count = 0
+
+
+
+    def action_create_invoice(self):
+        for call in self:
+            # if call.is_invoiced:
+            #     raise UserError(_("Invoice already created for this call."))
+
+            # if not call.outgoing:
+            #     raise UserError(_("Only outgoing calls can be invoiced."))
+
+            partner = call.partner_id
+            # if not partner:
+            #     raise UserError(_("No customer linked to the phone."))
+
+            invoice = self.env['account.move'].create({
+                'partner_id': partner.id,
+                'move_type': 'out_invoice',
+                'invoice_line_ids': [
+                    Command.create({
+                        'name': f"Call on {call.name}",
+                        'quantity': 1,
+                        'price_unit': call.total_outgoing_cost,
+                    })
+                ]
+            })
+
+            call.is_invoiced = True
+            call.partner_id.message_post(body=f"Invoice {invoice.name} created.")
    
     @api.depends('call_ids.total_cost')
     def _compute_total_outgoing_cost(self):
@@ -33,11 +99,42 @@ class PhoneStore(models.Model):
             )
 
 
+
+    #     def action_create_invoice(self):
+    #     for call in self:
+    #         if call.is_invoiced:
+    #             raise UserError(_("Invoice already created for this call."))
+
+    #         if not call.outgoing:
+    #             raise UserError(_("Only outgoing calls can be invoiced."))
+
+    #         partner = call.store_id.partner_id
+    #         if not partner:
+    #             raise UserError(_("No customer linked to the phone."))
+
+    #         invoice = self.env['account.move'].create({
+    #             'partner_id': partner.id,
+    #             'move_type': 'out_invoice',
+    #             'invoice_line_ids': [
+    #                 Command.create({
+    #                     'name': f"Call on {call.store_id.name}",
+    #                     'quantity': 1,
+    #                     'price_unit': call.total_cost,
+    #                 })
+    #             ]
+    #         })
+
+    #         call.is_invoiced = True
+    #         call.message_post(body=f"Invoice {invoice.name} created.")
+
+
+
+
 class PhoneCall(models.Model):
     _name = 'phone.call'
     _description = 'Phone Call'
 
-    store_id = fields.Many2one('phone.store', string='Phone Store', required=True)
+    store_id = fields.Many2one('phone.store', string='Phone Store')
     name = fields.Char(string='Name')
     call_type = fields.Selection([
         ('incoming', 'Incoming'),
@@ -46,16 +143,14 @@ class PhoneCall(models.Model):
 
     phone_number = fields.Char(string='Phone Number')
     call_time = fields.Datetime(string='Call Time')
-
-    # Outgoing-specific fields
     time_spent = fields.Float(string='Time Spent (min)')
     cost_per_minute = fields.Float(string='Cost Per Minute')
-    total_cost = fields.Float(string='Total Cost', compute='_compute_total_cost', store=True)
+    total_cost = fields.Float(string='Total Cost', compute='_compute_total_cost')
+    duration_minutes = fields.Float(string="Duration (Minutes)")
+    is_invoiced = fields.Boolean(string="Invoiced", default=False)
     
-
     @api.depends('time_spent', 'cost_per_minute')
     def _compute_total_cost(self):
-        # import pdb;pdb.set_trace()
         for record in self:
             if record.call_type == 'outgoing':
                 record.total_cost = record.time_spent * record.cost_per_minute
@@ -68,3 +163,18 @@ class PhoneTag(models.Model):
 
     name = fields.Char(string='Tag Name', required=True, translate=True)
     color = fields.Integer(string='Color Index')  # Optional for UI color tag
+
+
+
+class search(models.Model):
+    _inherit = 'res.partner'
+    def action_view_invoice(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Vehicles',
+            'view_mode': 'tree',
+            'res_model': 'fleet.vehicle',
+            'domain': [('driver_id', '=', self.id)],
+            'context': "{'create': False}"
+        }

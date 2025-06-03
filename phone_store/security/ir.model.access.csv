@@ -1,7 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_phone_store_user,access.phone.store.user,model_phone_store,base.group_user,1,1,1,1
-access_phone_brand,access.phone.brand,model_phone_brand,base.group_user,1,1,1,1
-access_phone_call_user,access.phone.call.user,model_phone_call,base.group_user,1,1,1,1
-access_phone_tag,access.phone.tag,model_phone_tag,base.group_user,1,1,1,1
-
-
+access_phone_store_user,access_phone_store_user,model_phone_store,base.group_user,1,1,1,1
+access_phone_brand,access_phone_brand,model_phone_brand,base.group_user,1,1,1,1
+access_phone_call_user,access_phone_call_user,model_phone_call,base.group_user,1,1,1,1
+access_phone_tag,access_phone_tag,model_phone_tag,base.group_user,1,1,1,1
