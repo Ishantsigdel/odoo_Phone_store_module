@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="phone_store_stage_new" model="phone.store.stage">
+        <field name="name">New</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="phone_store_stage_progress" model="phone.store.stage">
+        <field name="name">In Progress</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="phone_store_stage_done" model="phone.store.stage">
+        <field name="name">Done</field>
+        <field name="sequence">3</field>
+    </record>
+</odoo>
