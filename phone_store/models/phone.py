@@ -12,7 +12,7 @@ class PhoneStore(models.Model):
     name = fields.Char(string="Name", required=True, tracking=True)
 
     phone_number = fields.Char(string="Phone Number", required=True, tracking=True)
-    tag_ids = fields.Many2many("phone.tag", string="Tags", tracking=True)
+    tag_ids = fields.Many2gtimany("phone.tag", string="Tags", tracking=True)
 
     address = fields.Text(string="Address", tracking=True)
     gender = fields.Selection(
