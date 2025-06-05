@@ -1,4 +1,5 @@
 <odoo>
+    <!-- Tree View -->
     <record id="view_phone_store_tree" model="ir.ui.view">
         <field name="name">phone.store.tree</field>
         <field name="model">phone.store</field>
@@ -7,8 +8,9 @@
                 <field name="name"/>
                 <field name="phone_number"/>
                 <field name="gender"/>
-                <field name="address"/>
+                <field name="location"/>
                 <field name="brand_id"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                 <field name="status" />
                 <!-- <field name="stage_id"/> -->
             </tree>
@@ -20,9 +22,9 @@
         <field name="name">phone.store.form</field>
         <field name="model">phone.store</field>
         <field name="arch" type="xml">
-            <form string="Phone no store">
+            <form string="Phone store">
                 <header>
-                    <button type="object" name="action_view_invoice" string="Create Invoice" class="oe_highlight"/>
+                    <button type="object" name="action_create_invoice" string="Create Invoice" class="oe_highlight"/>
 
                     <field name="status" widget="statusbar" options="{'clickable': '1'}"/>
                     <!-- <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/> -->
@@ -48,28 +50,72 @@
                             <field name="phone_number"/>
                             <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                             <field name="gender"/>
-                            <field name="address"/>
                             <field name="brand_id"/>
                             <field name="partner_id"/>
-                            <field name="status" />
+                            <field name="location"/>
 
+
+                            <field name="status" options="{'color_field': 'color'}" />
                             <!-- <field name="stage_id"/> -->
                             <field name="is_invoiced"/>
-                            <field name="tag_ids" widget="many2many_tags"/>
+                            <!-- <field name="tag_ids" widget="many2many_tags"/> -->
                             <field name="active" invisible="1"/>
-
-
-
                         </group>
+
+                           <group string="location Map" attrs="{'invisible': [('location', '=', False)]}">
+                            <field name="location"/>
+                            <div>
+                                <t t-if="record and 'location' in record and record.location and record.location.raw_value">
+                                    <iframe
+                                        t-att-src="'https://www.google.com/maps?q=' + record.location.raw_value.replace(' ', '+') + '&amp;output=embed'"
+                                        width="100%"
+                                        height="300"
+                                        style="border:0;"
+                                        allowfullscreen="true"
+                                        loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade">
+                                    </iframe>
+                                </t>
+                            </div>
+                        </group>
+                                  <group string="Location">
+                            <field name="location"/>
+                            <button name="action_open_location_map"
+                                    string="Open Location in Map"
+                                    type="object"
+                                    class="btn-primary"
+                                    attrs="{'invisible': [('location', '=', False)]}"/>
+                        </group>
+        
+
+
                         <group>
+
                             <label for="total_outgoing_cost" string="Total Outgoing Cost" class="o_form_label" style="font-weight: bold !important;"/>
                             <field name="total_outgoing_cost" readonly="1" nolabel="1"/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <div>
+                                <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_1920'}" nolabel="1" style="width: 128px; height: 128px; border-radius: 8px; object-fit: cover;"/>
+                            </div>
                         </group>
                     </group>
+                    <!-- <iframe t-att-src="'https://www.google.com/maps?q=' + encodeURIComponent(record.address.raw_value) + '&amp;output=embed'" width="100%" height="300" frameborder="0" style="border:0" allowfullscreen="allowfullscreen"> -->
+                    <!-- </iframe>
 
-                    <div>
-                        <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_1920'}" nolabel="1" style="width: 128px; height: 128px; border-radius: 8px; object-fit: cover;"/>
-                    </div>
+
+                    <p style="margin-top: 10px;">   
+                        <a t-att-href="'https://www.google.com/maps?q=' + encodeURIComponent(record.address.raw_value)" target="_blank">
+        
+                        </a>
+                    </p> -->
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.086379601691!2d-122.4206790846811!3d37.77492927975916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085809c8f6376bf%3A0x9d4d8859f8dca136!2sSan%20Francisco%2C%20CA%2C%20USA!5e0!3m2!1sen!2sin!4v1675987766313!5m2!1sen!2sin" width="50%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+
+
+
+
 
                     <!-- Notebook stays unchanged -->
                     <notebook>
@@ -97,9 +143,9 @@
                     <field name="activity_ids" widget="mail_activity"/>
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
-                <footer>
+                <!-- <footer>
                     <button name="action_create_invoice" string="Create Invoice" type="object" class="btn btn-primary"/>
-                </footer>
+                </footer> -->
 
             </form>
         </field>
@@ -116,7 +162,7 @@
                 <field name="name"/>
                 <field name="phone_number"/>
                 <field name="gender"/>
-                <field name="address"/>
+                <field name="location"/>
                 <field name="image_1920"/>
                 <templates>
                     <t t-name="kanban-box">
@@ -142,7 +188,7 @@
 </field>
 </record>
 
-
+<!-- search -->
 <record id="view_phone_store_search" model="ir.ui.view">
 <field name="name">phone.store.search</field>
 <field name="model">phone.store</field>
@@ -150,7 +196,7 @@
     <search>
         <field name="name"/>
         <field name="phone_number"/>
-        <field name="address"/>
+        <field name="location"/>
         <field name="gender"/>
         <field name="status" />
         <!-- <field name="stage_id"/> -->
@@ -165,6 +211,8 @@
 </field>
 </record>
 
+
+<!-- action -->
 <record id="action_phone_store" model="ir.actions.act_window">
 <field name="name">Phone Store</field>
 <field name="res_model">phone.store</field>

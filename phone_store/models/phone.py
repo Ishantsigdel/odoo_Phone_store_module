@@ -12,9 +12,11 @@ class PhoneStore(models.Model):
     name = fields.Char(string="Name", required=True, tracking=True)
 
     phone_number = fields.Char(string="Phone Number", required=True, tracking=True)
-    tag_ids = fields.Many2gtimany("phone.tag", string="Tags", tracking=True)
+    tag_ids = fields.Many2many("phone.tag", string="Tags", tracking=True)
 
-    address = fields.Text(string="Address", tracking=True)
+    location = fields.Char(string='Location', tracking=True)
+
+    
     gender = fields.Selection(
         [("male", "Male"), ("female", "Female"), ("other", "Other")], string="Gender"
     )
@@ -22,6 +24,7 @@ class PhoneStore(models.Model):
     partner_id = fields.Many2one("res.partner", string="Customer")
     brand_id = fields.Many2one("phone.brand", string="Phone Brand")
     description = fields.Text(string="Description")
+    
     image_1920 = fields.Image(string="Image")
 
     total_outgoing_cost = fields.Float(
@@ -42,16 +45,17 @@ class PhoneStore(models.Model):
         ],
         default="new",
         string="Status",
-        required=True
+        required=True 
     )
+    
 
     # stage_id = fields.Many2one(
     #     "phone.store.stage", string="Stage", group_expand="_read_group_stage_ids"
     # )
 
-    @api.model
-    def _read_group_stage_ids(self, stages, domain, order):
-        return self.env["phone.store.stage"].search([])
+    # @api.model
+    # def _read_group_stage_ids(self, stages, domain, order):
+    #     return self.env["phone.store.stage"].search([])
 
     # @api.model
     # def _read_group_stage_ids(self, stages, domain, order):
@@ -79,6 +83,19 @@ class PhoneStore(models.Model):
                 ("move_type", "=", "out_invoice"),
             ],
             # 'context': "{'create': False}"
+        }
+    def action_open_location_map(self):
+        self.ensure_one()
+        if not self.location:
+            raise UserError("No location available.")
+        
+        query = self.location.replace(' ', '+')
+        url = f"https://www.google.com/maps/search/?api=1&query={query}"
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
         }
 
     def _compute_invoice_count(self):
@@ -202,16 +219,16 @@ class PhoneTag(models.Model):
     color = fields.Integer(string="Color Index")  # Optional for UI color tag
 
 
-class search(models.Model):
-    _inherit = "res.partner"
+# class search(models.Model):
+#     _inherit = "res.partner"
 
-    def action_view_invoice(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": "Vehicles",
-            "view_mode": "tree",
-            "res_model": "fleet.vehicle",
-            "domain": [("driver_id", "=", self.id)],
-            "context": "{'create': False}",
-        }
+#     def action_view_invoice(self):
+#         self.ensure_one()
+#         return {
+#             "type": "ir.actions.act_window",
+#             "name": "Vehicles",
+#             "view_mode": "tree",
+#             "res_model": "fleet.vehicle",
+#             "domain": [("driver_id", "=", self.id)],
+#             "context": "{'create': False}",
+#         }
