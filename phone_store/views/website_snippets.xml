@@ -1,0 +1,16 @@
+<odoo>
+  <template id="snippet_dynamic_phone" name="Phone Store Promotions" inherit_id="website.snippet">
+    <xpath expr="//div[@id='wrap']" position="inside">
+      <t t-name="phone_store.dynamic_snippet">
+        <section class="s_text" data-snippet="phone_store.dynamic_snippet" data-name="Phone Promotions">
+          <div class="container">
+            <h3 class="text-center">Promotional Phones</h3>
+            <div id="phone-promo-list" class="row justify-content-center">
+              <p>Loading promotions...</p>
+            </div>
+          </div>
+        </section>
+      </t>
+    </xpath>
+  </template>
+</odoo>

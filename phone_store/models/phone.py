@@ -26,6 +26,8 @@ class PhoneStore(models.Model):
     description = fields.Text(string="Description")
     
     image_1920 = fields.Image(string="Image")
+    is_promo = fields.Boolean(string="Promotion?")
+
 
     total_outgoing_cost = fields.Float(
         string="Total Outgoing Cost", compute="_compute_total_outgoing_cost"
